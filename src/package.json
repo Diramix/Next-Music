@@ -1,0 +1,28 @@
+{
+  "name": "next-music",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "make": "electron-builder"
+  },
+  "build": {
+    "appId": "com.next.music",
+    "asar": false,
+    "files": [
+      "main.js",
+      "icon.ico",
+      "mod/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "icon": "icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^23.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}
