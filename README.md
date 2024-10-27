@@ -35,6 +35,8 @@ npm run make
 
 Собранный `.exe` файл будет находиться в папке `dist`.
 
-## Установка скриптов и аддонов
+## Установка тем и аддонов
+
+Скачать расширения (темы и аддоны) можно из репозитория [Next Music Extensions](https://github.com/Web-Next-Music/Next-Music-Extensions)
 
 Переместите файлы аддонов в папку по пути `%LOCALAPPDATA%\Next Music\Addons`. Допустимы под-папки
