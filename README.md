@@ -13,7 +13,7 @@ Next Music — Веб клиент Яндекс Музыки с поддержк
 ### Клонирование репозитория
 
 ```bash
-git clone https://github.com/Diramix/Next-Music.git
+git clone https://github.com/Web-Next-Music/Next-Music-Client
 cd Next-Music
 ```
 
