@@ -78,7 +78,7 @@ function createTray() {
             click: (menuItem) => {
                 config.areAddonsEnabled = menuItem.checked;
                 saveConfig();
-                mainWindow.reload();  // Reload page when addons are toggled
+                mainWindow.reload();
             }
         },
         {
@@ -216,13 +216,24 @@ function createWindow() {
     });
 }
 
-app.whenReady().then(() => {
-    ensureDirectories();
-    createWindow();
-    createTray();
-}).catch(err => {
-    console.error('Error during app initialization:', err);
-});
+if (!app.requestSingleInstanceLock()) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+
+    app.whenReady().then(() => {
+        ensureDirectories();
+        createWindow();
+        createTray();
+    }).catch(err => {
+        console.error('Error during app initialization:', err);
+    });
+}
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
