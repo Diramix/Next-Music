@@ -62,7 +62,7 @@ function createTray() {
     tray = new Tray(path.join(__dirname, 'icon.ico'));
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: 'Новый дизайн',
+            label: 'New design',
             type: 'checkbox',
             checked: config.isNextMusic,
             click: (menuItem) => {
@@ -72,7 +72,7 @@ function createTray() {
             }
         },
         {
-            label: 'Включить расширения',
+            label: 'Enable extensions',
             type: 'checkbox',
             checked: config.areAddonsEnabled,
             click: (menuItem) => {
@@ -85,7 +85,7 @@ function createTray() {
             type: 'separator'
         },
         {
-            label: 'Открыть папку Next Music',
+            label: 'Open Next Music folder',
             click: () => {
                 shell.openPath(nextMusicDirectory).catch(err => {
                     console.error('Error opening folder:', err);
@@ -93,13 +93,13 @@ function createTray() {
             }
         },
         {
-            label: 'Скачать расширения',
+            label: 'Download extensions',
             click: () => {
                 shell.openExternal('https://github.com/Web-Next-Music/Next-Music-Extensions');
             }
         },
         {
-            label: 'Донат',
+            label: 'Donate',
             click: () => {
                 shell.openExternal('https://boosty.to/diramix');
             }
@@ -108,7 +108,7 @@ function createTray() {
             type: 'separator'
         },
         {
-            label: 'Закрыть',
+            label: 'Exit',
             click: () => {
                 app.exit();
             }
