@@ -231,6 +231,7 @@ if (!app.requestSingleInstanceLock()) {
     app.on('second-instance', () => {
         if (mainWindow) {
             if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.show(); // Показываем окно, если оно было скрыто
             mainWindow.focus();
         }
     });
