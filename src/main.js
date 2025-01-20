@@ -216,6 +216,15 @@ function createWindow() {
     });
 }
 
+function watchAddonsDirectory() {
+    fs.watch(addonsDirectory, { recursive: true }, (eventType, filename) => {
+        if (filename && (eventType === 'rename' || eventType === 'change')) {
+            console.log(`File ${filename} has been ${eventType}. Reloading window.`);
+            mainWindow.reload(); // Перезагружаем окно
+        }
+    });
+}
+
 if (!app.requestSingleInstanceLock()) {
     app.quit();
 } else {
@@ -230,6 +239,7 @@ if (!app.requestSingleInstanceLock()) {
         ensureDirectories();
         createWindow();
         createTray();
+        watchAddonsDirectory();  // Наблюдение за изменениями в папке расширений
     }).catch(err => {
         console.error('Error during app initialization:', err);
     });
