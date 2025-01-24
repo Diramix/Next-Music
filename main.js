@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Notification, shell, Tray, Menu } = require('electron');
+const { app, BrowserWindow, Notification, shell, Tray, Menu, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -169,10 +169,9 @@ function applyAddons() {
         console.log('Loading addons:');
 
         loadFilesFromDirectory(addonsDirectory, '.css', (cssContent, relativePath) => {
-            console.log(`Loading CSS file: ${relativePath}`);
-            mainWindow.webContents.insertCSS(cssContent).catch(err => {
-                console.error('Error inserting CSS:', err);
-            });
+            console.log(`Loading main CSS file: ${relativePath}`);
+            // Отправляем CSS в рендерер через IPC
+            mainWindow.webContents.send('insert-css', cssContent);
         });
 
         loadFilesFromDirectory(addonsDirectory, '.js', (jsContent, relativePath) => {
@@ -195,7 +194,7 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js'),
+            preload: path.join(__dirname, 'preload.js'),  // Подключаем preload.js
         }
     });
 
