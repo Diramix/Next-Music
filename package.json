@@ -11,6 +11,7 @@
     "asar": true,
     "files": [
       "main.js",
+      "preload.js",
       "icon.ico"
     ],
     "directories": {
