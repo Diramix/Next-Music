@@ -9,12 +9,11 @@ let tray = null;
 let mainWindow = null;
 let settingsWindow = null;
 let config = { 
-    isNextMusic: false, 
-    areAddonsEnabled: true, 
+    newDesign: false, 
+    addonsEnabled: false, 
     autoLaunch: false, 
     startMinimized: false 
 };
-let isAutoLaunch = false;
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -24,18 +23,20 @@ if (!gotTheLock) {
     app.on('second-instance', () => {
         if (mainWindow) {
             if (mainWindow.isMinimized()) mainWindow.restore();
-            mainWindow.show()
+            mainWindow.show();
             mainWindow.focus();
         }
     });
 
     app.whenReady().then(() => {
         ensureDirectories();
+        loadConfig();
+
+        updateAutoLaunch(config.autoLaunch);
+
         createWindow();
         createTray();
         watchAddonsDirectory();
-        isAutoLaunch = app.getLoginItemSettings().openAtLogin;
-        if (config.autoLaunch) app.setLoginItemSettings({ openAtLogin: true });
     });
 
     app.on('window-all-closed', () => {
@@ -100,6 +101,10 @@ function saveConfig() {
     }
 }
 
+function updateAutoLaunch(enable) {
+    app.setLoginItemSettings({ openAtLogin: enable });
+}
+
 function createTray() {
     tray = new Tray(path.join(__dirname, 'icon.ico'));
     const contextMenu = Menu.buildFromTemplate([
@@ -107,6 +112,14 @@ function createTray() {
             label: 'Donate',
             click: () => {
                 shell.openExternal('https://boosty.to/diramix');
+            }
+        },
+        {
+            label: 'Open Next Music folder',
+            click: () => {
+                shell.openPath(nextMusicDirectory).catch(err => {
+                    console.error('Error opening folder:', err);
+                });
             }
         },
         {
@@ -119,7 +132,7 @@ function createTray() {
         {
             label: 'Exit',
             click: () => {
-                app.exit()
+                app.exit();
             }
         }
     ]);
@@ -147,7 +160,7 @@ function createSettingsWindow() {
     });
 
     settingsWindow.loadURL(`file://${path.join(__dirname, 'settings/settings.html')}`);
-    
+
     settingsWindow.webContents.on('did-finish-load', () => {
         settingsWindow.webContents.send('load-config', config);
     });
@@ -158,12 +171,12 @@ function createSettingsWindow() {
 }
 
 function loadMainUrl() {
-    const url = config.isNextMusic ? 'https://next.music.yandex.ru/' : 'https://music.yandex.ru/';
+    const url = config.newDesign ? 'https://next.music.yandex.ru/' : 'https://music.yandex.ru/';
     mainWindow.loadURL(url).catch(err => { console.error('Error loading URL:', err); });
 }
 
 function createWindow() {
-    const showWindow = !isAutoLaunch && !config.startMinimized;
+    const showWindow = !config.startMinimized;
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
@@ -178,42 +191,17 @@ function createWindow() {
     loadMainUrl();
     mainWindow.on('close', (event) => { event.preventDefault(); mainWindow.hide(); });
     mainWindow.webContents.on('did-finish-load', () => { applyAddons(); });
-    if (config.startMinimized && isAutoLaunch) mainWindow.minimize();
+    if (config.startMinimized) mainWindow.hide();
 }
 
 function applyAddons() {
-    if (config.areAddonsEnabled) {
-        console.log('Loading addons:');
-        loadFilesFromDirectory(addonsDirectory, '.css', (cssContent, fileName) => {
-            console.log(`CSS Loaded: ${fileName}`);
-            const script = `(() => {
-                const style = document.createElement('style');
-                style.textContent = \`${cssContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`;
-                document.body.appendChild(style);
-            })();`;
-            mainWindow.webContents.executeJavaScript(script).catch(err => {
-                console.error('Error inserting CSS:', err);
-            });
-        });
-        loadFilesFromDirectory(addonsDirectory, '.js', (jsContent, fileName) => {
-            console.log(`JS Loaded: ${fileName}`);
-            mainWindow.webContents.executeJavaScript(jsContent).catch(err => {
-                console.error('Error executing JS:', err);
-            });
-        });
-    } else {
-        console.log('Addons are disabled');
-    }
-}
-
-function applyAddons() {
-    if (config.areAddonsEnabled) {
+    if (config.addonsEnabled) {
         console.log('Loading addons:');
         loadFilesFromDirectory(addonsDirectory, '.css', (cssContent, filePath) => {
             console.log(`Load CSS: ${path.relative(addonsDirectory, filePath)}`);
             const script = `(() => {
                 const style = document.createElement('style');
-                style.textContent = \`${cssContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`;
+                style.textContent = \`${cssContent.replace(/\\/g, '\\\\').replace(/`/g, '\`')}\`;
                 document.body.appendChild(style);
             })();`;
             mainWindow.webContents.executeJavaScript(script).catch(err => {
@@ -263,5 +251,8 @@ function loadFilesFromDirectory(directory, extension, callback) {
 ipcMain.on('update-config', (event, newConfig) => {
     config = { ...config, ...newConfig };
     saveConfig();
-    if (newConfig.isNextMusic !== undefined) loadMainUrl();
+    if (newConfig.autoLaunch !== undefined) {
+        updateAutoLaunch(newConfig.autoLaunch);
+    }
+    if (newConfig.newDesign !== undefined) loadMainUrl();
 });
