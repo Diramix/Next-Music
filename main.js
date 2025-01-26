@@ -16,7 +16,6 @@ let config = {
 };
 let isAutoLaunch = false;
 
-// Проверка на уникальность экземпляра
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
@@ -52,7 +51,6 @@ if (!gotTheLock) {
     });
 }
 
-// Остальная часть кода
 function ensureDirectories() {
     if (!fs.existsSync(nextMusicDirectory)) {
         fs.mkdirSync(nextMusicDirectory, { recursive: true });
@@ -186,16 +184,47 @@ function createWindow() {
 function applyAddons() {
     if (config.areAddonsEnabled) {
         console.log('Loading addons:');
-        loadFilesFromDirectory(addonsDirectory, '.css', (cssContent) => {
+        loadFilesFromDirectory(addonsDirectory, '.css', (cssContent, fileName) => {
+            console.log(`CSS Loaded: ${fileName}`);
             const script = `(() => {
                 const style = document.createElement('style');
                 style.textContent = \`${cssContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`;
                 document.body.appendChild(style);
             })();`;
-            mainWindow.webContents.executeJavaScript(script).catch(err => { console.error('Error inserting CSS:', err); });
+            mainWindow.webContents.executeJavaScript(script).catch(err => {
+                console.error('Error inserting CSS:', err);
+            });
         });
-        loadFilesFromDirectory(addonsDirectory, '.js', (jsContent) => {
-            mainWindow.webContents.executeJavaScript(jsContent).catch(err => { console.error('Error executing JS:', err); });
+        loadFilesFromDirectory(addonsDirectory, '.js', (jsContent, fileName) => {
+            console.log(`JS Loaded: ${fileName}`);
+            mainWindow.webContents.executeJavaScript(jsContent).catch(err => {
+                console.error('Error executing JS:', err);
+            });
+        });
+    } else {
+        console.log('Addons are disabled');
+    }
+}
+
+function applyAddons() {
+    if (config.areAddonsEnabled) {
+        console.log('Loading addons:');
+        loadFilesFromDirectory(addonsDirectory, '.css', (cssContent, filePath) => {
+            console.log(`Load CSS: ${path.relative(addonsDirectory, filePath)}`);
+            const script = `(() => {
+                const style = document.createElement('style');
+                style.textContent = \`${cssContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`;
+                document.body.appendChild(style);
+            })();`;
+            mainWindow.webContents.executeJavaScript(script).catch(err => {
+                console.error('Error inserting CSS:', err);
+            });
+        });
+        loadFilesFromDirectory(addonsDirectory, '.js', (jsContent, filePath) => {
+            console.log(`Load JS: ${path.relative(addonsDirectory, filePath)}`);
+            mainWindow.webContents.executeJavaScript(jsContent).catch(err => {
+                console.error('Error executing JS:', err);
+            });
         });
     } else {
         console.log('Addons are disabled');
@@ -211,12 +240,19 @@ function loadFilesFromDirectory(directory, extension, callback) {
         files.forEach(file => {
             const filePath = path.join(directory, file);
             fs.stat(filePath, (err, stat) => {
-                if (err) { console.error('Error stating file:', err); return; }
-                if (stat.isDirectory()) { loadFilesFromDirectory(filePath, extension, callback); }
-                else if (path.extname(file) === extension) {
+                if (err) {
+                    console.error('Error stating file:', err);
+                    return;
+                }
+                if (stat.isDirectory()) {
+                    loadFilesFromDirectory(filePath, extension, callback);
+                } else if (path.extname(file) === extension) {
                     fs.readFile(filePath, 'utf8', (err, content) => {
-                        if (err) { console.error(`Error reading ${file}:`, err); return; }
-                        callback(content);
+                        if (err) {
+                            console.error(`Error reading ${file}:`, err);
+                            return;
+                        }
+                        callback(content, filePath);
                     });
                 }
             });
