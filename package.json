@@ -13,13 +13,14 @@
       "./settings",
       "main.js",
       "preload.js",
-      "icon.ico"
+      "icon.ico",
+      "icon-256.ico"
     ],
     "directories": {
       "buildResources": "assets"
     },
     "win": {
-      "icon": "icon.ico"
+      "icon": "./icon-256.ico"
     }
   },
   "devDependencies": {
