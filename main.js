@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Notification, shell, Tray, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, Notification, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -7,7 +7,14 @@ const addonsDirectory = path.join(nextMusicDirectory, 'Addons');
 const configFilePath = path.join(nextMusicDirectory, 'config.json');
 let tray = null;
 let mainWindow = null;
-let config = { isNextMusic: false, areAddonsEnabled: true, appVersion: '' };
+let settingsWindow = null;
+let config = { 
+    isNextMusic: false, 
+    areAddonsEnabled: true, 
+    autoLaunch: false, 
+    startMinimized: false 
+};
+let isAutoLaunch = false;
 
 function ensureDirectories() {
     if (!fs.existsSync(nextMusicDirectory)) {
@@ -62,47 +69,14 @@ function createTray() {
     tray = new Tray(path.join(__dirname, 'icon.ico'));
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: 'New design',
-            type: 'checkbox',
-            checked: config.isNextMusic,
-            click: (menuItem) => {
-                config.isNextMusic = menuItem.checked;
-                saveConfig();
-                loadMainUrl();
-            }
-        },
-        {
-            label: 'Enable extensions',
-            type: 'checkbox',
-            checked: config.areAddonsEnabled,
-            click: (menuItem) => {
-                config.areAddonsEnabled = menuItem.checked;
-                saveConfig();
-                mainWindow.reload();
-            }
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Open Next Music folder',
-            click: () => {
-                shell.openPath(nextMusicDirectory).catch(err => {
-                    console.error('Error opening folder:', err);
-                });
-            }
-        },
-        {
-            label: 'Download extensions',
-            click: () => {
-                shell.openExternal('https://github.com/Web-Next-Music/Next-Music-Extensions');
-            }
-        },
-        {
             label: 'Donate',
             click: () => {
                 shell.openExternal('https://boosty.to/diramix');
             }
+        },
+        {
+            label: 'Settings',
+            click: createSettingsWindow
         },
         {
             type: 'separator'
@@ -110,28 +84,86 @@ function createTray() {
         {
             label: 'Exit',
             click: () => {
-                app.exit();
+                app.exit()
             }
         }
     ]);
-
     tray.setToolTip('Next Music');
     tray.setContextMenu(contextMenu);
+    tray.on('click', () => { mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show(); });
+}
 
-    tray.on('click', () => {
-        if (mainWindow.isVisible()) {
-            mainWindow.hide();
-        } else {
-            mainWindow.show();
+function createSettingsWindow() {
+    if (settingsWindow) {
+        settingsWindow.focus();
+        return;
+    }
+
+    settingsWindow = new BrowserWindow({
+        width: 400,
+        height: 327,
+        resizable: false,
+        autoHideMenuBar: true,
+        icon: path.join(__dirname, 'icon.ico'),
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
         }
+    });
+
+    settingsWindow.loadURL(`file://${path.join(__dirname, 'settings/settings.html')}`);
+    
+    // Отправляем конфигурацию в окно настроек
+    settingsWindow.webContents.on('did-finish-load', () => {
+        settingsWindow.webContents.send('load-config', config);
+    });
+
+    settingsWindow.on('closed', () => {
+        settingsWindow = null;
     });
 }
 
 function loadMainUrl() {
     const url = config.isNextMusic ? 'https://next.music.yandex.ru/' : 'https://music.yandex.ru/';
-    mainWindow.loadURL(url).catch(err => {
-        console.error('Error loading URL:', err);
+    mainWindow.loadURL(url).catch(err => { console.error('Error loading URL:', err); });
+}
+
+function createWindow() {
+    const showWindow = !isAutoLaunch && !config.startMinimized;
+    mainWindow = new BrowserWindow({
+        width: 1280,
+        height: 800,
+        autoHideMenuBar: true,
+        icon: path.join(__dirname, 'icon.ico'),
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+        },
+        show: showWindow,
     });
+    loadMainUrl();
+    mainWindow.on('close', (event) => { event.preventDefault(); mainWindow.hide(); });
+    mainWindow.webContents.on('did-finish-load', () => { applyAddons(); });
+    if (config.startMinimized && isAutoLaunch) mainWindow.minimize();
+}
+
+function applyAddons() {
+    if (config.areAddonsEnabled) {
+        console.log('Loading addons:');
+        loadFilesFromDirectory(addonsDirectory, '.css', (cssContent) => {
+            const script = `(() => {
+                const style = document.createElement('style');
+                style.textContent = \`${cssContent.replace(/\\/g, '\\\\').replace(/`/g, '\\`')}\`;
+                document.body.appendChild(style);
+            })();`;
+            mainWindow.webContents.executeJavaScript(script).catch(err => { console.error('Error inserting CSS:', err); });
+        });
+        loadFilesFromDirectory(addonsDirectory, '.js', (jsContent) => {
+            mainWindow.webContents.executeJavaScript(jsContent).catch(err => { console.error('Error executing JS:', err); });
+        });
+    } else {
+        console.log('Addons are disabled');
+    }
 }
 
 function loadFilesFromDirectory(directory, extension, callback) {
@@ -143,20 +175,12 @@ function loadFilesFromDirectory(directory, extension, callback) {
         files.forEach(file => {
             const filePath = path.join(directory, file);
             fs.stat(filePath, (err, stat) => {
-                if (err) {
-                    console.error('Error stating file:', err);
-                    return;
-                }
-                if (stat.isDirectory()) {
-                    loadFilesFromDirectory(filePath, extension, callback);
-                } else if (path.extname(file) === extension) {
-                    const relativePath = path.relative(addonsDirectory, filePath);
+                if (err) { console.error('Error stating file:', err); return; }
+                if (stat.isDirectory()) { loadFilesFromDirectory(filePath, extension, callback); }
+                else if (path.extname(file) === extension) {
                     fs.readFile(filePath, 'utf8', (err, content) => {
-                        if (err) {
-                            console.error(`Error reading ${file}:`, err);
-                            return;
-                        }
-                        callback(content, relativePath);
+                        if (err) { console.error(`Error reading ${file}:`, err); return; }
+                        callback(content);
                     });
                 }
             });
@@ -164,86 +188,20 @@ function loadFilesFromDirectory(directory, extension, callback) {
     });
 }
 
-function applyAddons() {
-    if (config.areAddonsEnabled) {
-        console.log('Loading addons:');
+ipcMain.on('update-config', (event, newConfig) => {
+    config = { ...config, ...newConfig };
+    saveConfig();
+    if (newConfig.isNextMusic !== undefined) loadMainUrl();
+});
 
-        loadFilesFromDirectory(addonsDirectory, '.css', (cssContent, relativePath) => {
-            console.log(`Loading main CSS file: ${relativePath}`);
-            // Отправляем CSS в рендерер через IPC
-            mainWindow.webContents.send('insert-css', cssContent);
-        });
-
-        loadFilesFromDirectory(addonsDirectory, '.js', (jsContent, relativePath) => {
-            console.log(`Loading JS file: ${relativePath}`);
-            mainWindow.webContents.executeJavaScript(jsContent).catch(err => {
-                console.error('Error executing JS:', err);
-            });
-        });
-    } else {
-        console.log('Addons are disabled');
-    }
-}
-
-function createWindow() {
-    mainWindow = new BrowserWindow({
-        width: 1280,
-        height: 800,
-        autoHideMenuBar: true,
-        icon: path.join(__dirname, 'icon.ico'),
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js'),  // Подключаем preload.js
-        }
-    });
-
-    loadMainUrl();
-
-    mainWindow.on('close', (event) => {
-        event.preventDefault();
-        mainWindow.hide();
-    });
-
-    mainWindow.webContents.on('did-finish-load', () => {
-        console.log('Page loaded');
-        applyAddons();
-    });
-
-    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-        console.error(`Load error: ${errorDescription} (code: ${errorCode})`);
-    });
-}
-
-function watchAddonsDirectory() {
-    fs.watch(addonsDirectory, { recursive: true }, (eventType, filename) => {
-        if (filename && (eventType === 'rename' || eventType === 'change')) {
-            console.log(`File ${filename} has been ${eventType}. Reloading window.`);
-            mainWindow.reload(); // Перезагружаем окно
-        }
-    });
-}
-
-if (!app.requestSingleInstanceLock()) {
-    app.quit();
-} else {
-    app.on('second-instance', () => {
-        if (mainWindow) {
-            if (mainWindow.isMinimized()) mainWindow.restore();
-            mainWindow.show(); // Показываем окно, если оно было скрыто
-            mainWindow.focus();
-        }
-    });
-
-    app.whenReady().then(() => {
-        ensureDirectories();
-        createWindow();
-        createTray();
-        watchAddonsDirectory();  // Наблюдение за изменениями в папке расширений
-    }).catch(err => {
-        console.error('Error during app initialization:', err);
-    });
-}
+app.whenReady().then(() => {
+    ensureDirectories();
+    createWindow();
+    createTray();
+    watchAddonsDirectory();
+    isAutoLaunch = app.getLoginItemSettings().openAtLogin;
+    if (config.autoLaunch) app.setLoginItemSettings({ openAtLogin: true });
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
