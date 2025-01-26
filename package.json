@@ -13,6 +13,7 @@
       "./settings",
       "main.js",
       "preload.js",
+      "icon.ico",
       "icon-256.ico"
     ],
     "directories": {
