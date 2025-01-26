@@ -16,6 +16,43 @@ let config = {
 };
 let isAutoLaunch = false;
 
+// Проверка на уникальность экземпляра
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.show()
+            mainWindow.focus();
+        }
+    });
+
+    app.whenReady().then(() => {
+        ensureDirectories();
+        createWindow();
+        createTray();
+        watchAddonsDirectory();
+        isAutoLaunch = app.getLoginItemSettings().openAtLogin;
+        if (config.autoLaunch) app.setLoginItemSettings({ openAtLogin: true });
+    });
+
+    app.on('window-all-closed', () => {
+        if (process.platform !== 'darwin') {
+            app.quit();
+        }
+    });
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
+    });
+}
+
+// Остальная часть кода
 function ensureDirectories() {
     if (!fs.existsSync(nextMusicDirectory)) {
         fs.mkdirSync(nextMusicDirectory, { recursive: true });
@@ -113,7 +150,6 @@ function createSettingsWindow() {
 
     settingsWindow.loadURL(`file://${path.join(__dirname, 'settings/settings.html')}`);
     
-    // Отправляем конфигурацию в окно настроек
     settingsWindow.webContents.on('did-finish-load', () => {
         settingsWindow.webContents.send('load-config', config);
     });
@@ -192,25 +228,4 @@ ipcMain.on('update-config', (event, newConfig) => {
     config = { ...config, ...newConfig };
     saveConfig();
     if (newConfig.isNextMusic !== undefined) loadMainUrl();
-});
-
-app.whenReady().then(() => {
-    ensureDirectories();
-    createWindow();
-    createTray();
-    watchAddonsDirectory();
-    isAutoLaunch = app.getLoginItemSettings().openAtLogin;
-    if (config.autoLaunch) app.setLoginItemSettings({ openAtLogin: true });
-});
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
-
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
-    }
 });
