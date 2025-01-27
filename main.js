@@ -38,7 +38,7 @@ if (!gotTheLock) {
         updateAutoLaunch(config.autoLaunch);
         createWindow();
         createTray();
-        cfgUpdater()
+        cfgUpdater();
     });
 
     app.on('window-all-closed', () => {
