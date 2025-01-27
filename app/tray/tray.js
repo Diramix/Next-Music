@@ -3,6 +3,7 @@ const path = require('path');
 
 let tray = null;
 let settingsWindow = null;
+let infoWindow = null
 const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 const nextMusicDirectory = path.join(process.env.LOCALAPPDATA, 'Next Music');
 
@@ -40,6 +41,10 @@ function createTray() {
             type: 'separator'
         },
         {
+            label: 'Info',
+            click: createInfoWindow
+        },
+        {
             label: 'Exit',
             click: () => {
                 app.exit();
@@ -73,7 +78,15 @@ function createSettingsWindow() {
         }
     });
 
+    settingsWindow.webContents.on('before-input-event', (event, input) => {
+        if (input.key === 'F11') {
+        event.preventDefault();
+        }
+    });
+
     settingsWindow.loadURL(`file://${path.join(__dirname, 'app/settings/settings.html')}`);
+
+    settingsWindow.setMenu(null)
 
     settingsWindow.webContents.on('did-finish-load', () => {
         settingsWindow.webContents.send('load-config', config);
@@ -81,6 +94,43 @@ function createSettingsWindow() {
 
     settingsWindow.on('closed', () => {
         settingsWindow = null;
+    });
+}
+
+function createInfoWindow() {
+    if (infoWindow) {
+        infoWindow.focus();
+        return;
+    }
+
+    infoWindow = new BrowserWindow({
+        width: 600,
+        height: 400,
+        resizable: false,
+        autoHideMenuBar: true,
+        icon: appIcon,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        }
+    });
+
+    infoWindow.webContents.on('before-input-event', (event, input) => {
+        if (input.key === 'F11') {
+        event.preventDefault();
+        }
+    });
+
+    infoWindow.loadURL(`file://${path.join(__dirname, 'app/info/info.html')}`);
+
+    infoWindow.setMenu(null)
+
+    infoWindow.webContents.on('did-finish-load', () => {
+        infoWindow.webContents.send('load-config', config);
+    });
+
+    infoWindow.on('closed', () => {
+        infoWindow = null;
     });
 }
 
