@@ -40,3 +40,10 @@ npm run make
 Скачать расширения (темы и аддоны) можно из репозитория [Next Music Extensions](https://github.com/Web-Next-Music/Next-Music-Extensions)
 
 Переместите файлы аддонов в папку по пути `%LOCALAPPDATA%\Next Music\Addons`. Допустимы под-папки
+
+## DANGER ZONE
+
+>[!WARNING]
+>Если вы знаете JavaScript, то НИКОГДА не смотрите файл `main.js`!!!
+>
+>Вы сблюёте себе на клаву...

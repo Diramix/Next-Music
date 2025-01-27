@@ -1,19 +1,23 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, Notification, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+eval(require('fs').readFileSync(require('path').join(__dirname, 'app', 'tray', 'tray.js'), 'utf8'));
 
 const nextMusicDirectory = path.join(process.env.LOCALAPPDATA, 'Next Music');
 const addonsDirectory = path.join(nextMusicDirectory, 'Addons');
 const configFilePath = path.join(nextMusicDirectory, 'config.json');
-let tray = null;
+
 let mainWindow = null;
-let settingsWindow = null;
 let config = { 
-    newDesign: false, 
-    addonsEnabled: false, 
+    newDesign: true, 
+    addonsEnabled: false,
+    autoUpdate: true,
     autoLaunch: false, 
     startMinimized: false 
 };
+
+const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -31,12 +35,10 @@ if (!gotTheLock) {
     app.whenReady().then(() => {
         ensureDirectories();
         loadConfig();
-
         updateAutoLaunch(config.autoLaunch);
-
         createWindow();
         createTray();
-        watchAddonsDirectory();
+        cfgUpdater()
     });
 
     app.on('window-all-closed', () => {
@@ -50,6 +52,12 @@ if (!gotTheLock) {
             createWindow();
         }
     });
+}
+
+function cfgUpdater() {
+    if (config.autoUpdate) {
+        eval(require('fs').readFileSync(require('path').join(__dirname, 'app', 'updater', 'updater.js'), 'utf8'))
+    }
 }
 
 function ensureDirectories() {
@@ -72,7 +80,7 @@ function showNotification() {
         title: 'Next Music',
         body: 'Directory Next Music has been created. Click to open.',
         silent: false,
-        icon: path.join(__dirname, 'icon.ico'),
+        icon: appIcon,
     });
 
     notification.on('click', () => {
@@ -105,83 +113,13 @@ function updateAutoLaunch(enable) {
     app.setLoginItemSettings({ openAtLogin: enable });
 }
 
-function createTray() {
-    tray = new Tray(path.join(__dirname, 'icon.ico'));
-    const contextMenu = Menu.buildFromTemplate([
-        {
-            label: 'Donate',
-            click: () => {
-                shell.openExternal('https://boosty.to/diramix');
-            }
-        },
-        {
-            label: 'Open Next Music folder',
-            click: () => {
-                shell.openPath(nextMusicDirectory).catch(err => {
-                    console.error('Error opening folder:', err);
-                });
-            }
-        },
-        {
-            label: 'Settings',
-            click: createSettingsWindow
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Exit',
-            click: () => {
-                app.exit();
-            }
-        }
-    ]);
-    tray.setToolTip('Next Music');
-    tray.setContextMenu(contextMenu);
-    tray.on('click', () => { mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show(); });
-}
-
-function createSettingsWindow() {
-    if (settingsWindow) {
-        settingsWindow.focus();
-        return;
-    }
-
-    settingsWindow = new BrowserWindow({
-        width: 400,
-        height: 327,
-        resizable: false,
-        autoHideMenuBar: true,
-        icon: path.join(__dirname, 'icon.ico'),
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-        }
-    });
-
-    settingsWindow.loadURL(`file://${path.join(__dirname, 'settings/settings.html')}`);
-
-    settingsWindow.webContents.on('did-finish-load', () => {
-        settingsWindow.webContents.send('load-config', config);
-    });
-
-    settingsWindow.on('closed', () => {
-        settingsWindow = null;
-    });
-}
-
-function loadMainUrl() {
-    const url = config.newDesign ? 'https://next.music.yandex.ru/' : 'https://music.yandex.ru/';
-    mainWindow.loadURL(url).catch(err => { console.error('Error loading URL:', err); });
-}
-
 function createWindow() {
     const showWindow = !config.startMinimized;
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
         autoHideMenuBar: true,
-        icon: path.join(__dirname, 'icon.ico'),
+        icon: appIcon,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -192,6 +130,11 @@ function createWindow() {
     mainWindow.on('close', (event) => { event.preventDefault(); mainWindow.hide(); });
     mainWindow.webContents.on('did-finish-load', () => { applyAddons(); });
     if (config.startMinimized) mainWindow.hide();
+}
+
+function loadMainUrl() {
+    const url = config.newDesign ? 'https://next.music.yandex.ru/' : 'https://music.yandex.ru/';
+    mainWindow.loadURL(url).catch(err => { console.error('Error loading URL:', err); });
 }
 
 function applyAddons() {
