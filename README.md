@@ -5,21 +5,31 @@ Next Music — Веб клиент Яндекс Музыки с поддержк
 ## Скриншоты
 ![image](https://github.com/user-attachments/assets/5a2903ad-f755-4da0-8c25-27402e97a19a)
 
-### Системные требования
+### Скачивание Node.js
 
-- Node.js (рекомендуемая версия: 14.x или выше)
-- npm (входит в состав Node.js)
+- Скачать Node.js можно по [этой ссылке](https://nodejs.org/dist/v21.7.3/node-v21.7.3-x64.msi)
+
+>[!NOTE]
+>Также Node.js нужна при использовании собранного приложения.
+
+### Установка git
+- Скачать git можно по [этой ссылке](https://github.com/git-for-windows/git/releases/download/v2.44.0.windows.1/Git-2.44.0-64-bit.exe)
 
 ### Клонирование репозитория
 
 ```bash
 git clone https://github.com/Web-Next-Music/Next-Music-Client
-cd Next-Music
+cd Next-Music-Client
 ```
 
 ### Установка зависимостей
 
 Установите все необходимые зависимости с помощью npm:
+
+# Установка electron
+```bash
+npm install electron --save-dev
+```
 
 ```bash
 npm install
