@@ -4,9 +4,18 @@ const fs = require('fs');
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
 
+let currentPkgVersion;
+
+try {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+    currentPkgVersion = packageJson.version || 'Version not specified';
+} catch (error) {
+    currentPkgVersion = 'Error reading package.json file';
+}
+
 const repoOwner = "Web-Next-Music";
 const repoName = "Next-Music-Client";
-const currentReleaseVersion = "Next-Music-1.4.1";
+const currentReleaseVersion = `Next-Music-${currentPkgVersion}`;
 
 let mainWindow;
 
@@ -26,7 +35,7 @@ function createWindow() {
     mainWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`
         <html>
             <head><title>Update</title></head>
-            <body style="font-family: Arial, sans-serif; background-color: rgba(0,0,0,0.7); color: white; padding: 20px; user-select: none;">
+            <body style="font-family: Arial, sans-serif; background-color: #16181E; color: white; padding: 20px; user-select: none;">
                 <h2>Update Available</h2>
                 <p id="message">Checking for updates...</p>
                 <p id="progress">Progress: 0%</p>
@@ -58,11 +67,11 @@ async function updateCheck() {
         if (latestReleaseVersion !== currentReleaseVersion) {
             console.log(`A new version is available: ${latestReleaseVersion}.`);
             createWindow();
-            updateWindowMessage(`New version ${latestReleaseVersion} is available. Preparing to download...`);
+            updateWindowMessage(`New version ${latestReleaseVersion} is available. Downloading...`);
             const installerUrl = `https://github.com/${repoOwner}/${repoName}/releases/download/${latestReleaseVersion}/${latestReleaseVersion}-Setup.exe`;
             await downloadInstaller(installerUrl, latestReleaseVersion);
         } else {
-            console.log("You are using the latest version.");
+            console.log(`You are using the latest version ${currentReleaseVersion}.`);
         }
     } catch (error) {
         console.error("Error checking for updates:", error);

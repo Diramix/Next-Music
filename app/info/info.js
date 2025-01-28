@@ -1,5 +1,7 @@
 const { shell } = require('electron');
+const fs = require('fs');
 
+// Buttons
 document.getElementById("women").addEventListener("click", () => {
     const nya = new Audio('./assets/nya.mp3');
     nya.play();
@@ -21,3 +23,18 @@ document.getElementById("boostyBtn").addEventListener("click", () => {
 document.getElementById("youtubeBtn").addEventListener("click", () => {
     shell.openExternal("https://www.youtube.com/@Diram1x");
 });
+
+// parse version
+let currentPkgVersion;
+
+try {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+    currentPkgVersion = 'v' + packageJson.version || 'Version not specified';
+} catch (error) {
+    currentPkgVersion = 'Error reading package.json';
+}
+
+document.querySelector(".version").textContent = currentPkgVersion;
+
+const title = `Next Music ${currentPkgVersion} By Diramix`
+document.querySelector(".nm_title").textContent = title;
