@@ -3,7 +3,7 @@ const path = require('path');
 
 let tray = null;
 let settingsWindow = null;
-let infoWindow = null
+let infoWindow = null;
 const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 const nextMusicDirectory = path.join(process.env.LOCALAPPDATA, 'Next Music');
 

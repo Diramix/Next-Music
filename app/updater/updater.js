@@ -7,7 +7,6 @@ const { app, BrowserWindow } = require('electron');
 const repoOwner = "Web-Next-Music";
 const repoName = "Next-Music-Client";
 const currentReleaseVersion = "Next-Music-1.4.1";
-const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
 let mainWindow;
 
@@ -15,8 +14,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 500,
         height: 250,
-        icon: appIcon,
         frame: false,
+        resizable: false,
         alwaysOnTop: true,
         transparent: true,
         webPreferences: {
@@ -46,14 +45,6 @@ function createWindow() {
     });
 }
 
-app.whenReady().then(createWindow);
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
-
 async function updateCheck() {
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/releases/latest`;
 
@@ -66,7 +57,8 @@ async function updateCheck() {
 
         if (latestReleaseVersion !== currentReleaseVersion) {
             console.log(`A new version is available: ${latestReleaseVersion}.`);
-            updateWindowMessage(`New version ${latestReleaseVersion} is available. Downloading...`);
+            createWindow();
+            updateWindowMessage(`New version ${latestReleaseVersion} is available. Preparing to download...`);
             const installerUrl = `https://github.com/${repoOwner}/${repoName}/releases/download/${latestReleaseVersion}/${latestReleaseVersion}-Setup.exe`;
             await downloadInstaller(installerUrl, latestReleaseVersion);
         } else {
@@ -162,6 +154,6 @@ function updateSpeed(speed) {
     }
 }
 
-let startTime = Date.now();  // Start time to calculate download speed
+let startTime = Date.now();
 
 updateCheck();
