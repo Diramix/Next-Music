@@ -4,14 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
 
-let currentPkgVersion;
-
-try {
-    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
-    currentPkgVersion = packageJson.version || 'Version not specified';
-} catch (error) {
-    currentPkgVersion = 'Error reading package.json file';
-}
+let currentPkgVersion = "1.4.2";
 
 const repoOwner = "Web-Next-Music";
 const repoName = "Next-Music-Client";
