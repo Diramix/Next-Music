@@ -121,7 +121,7 @@ function updateAutoLaunch(enable) {
 
 function createPreloadWindow() {
     preloadWindow = new BrowserWindow({
-        width: 250,
+        width: 240,
         height: 280,
         frame: false,
         transparent: true,

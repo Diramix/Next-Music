@@ -19,7 +19,6 @@ function createWindow() {
         height: 250,
         frame: false,
         resizable: false,
-        alwaysOnTop: true,
         transparent: true,
         icon: appIcon,
         webPreferences: {

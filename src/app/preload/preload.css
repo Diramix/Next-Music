@@ -7,7 +7,6 @@ body {
     height: 100%;
     margin: 0;
     background-color: #000;
-    border-radius: 10px;
     font-family: 'Noto Sans', sans-serif;
 }
 
@@ -17,18 +16,36 @@ body {
     height: 100px;
     background-image: url('../icons/icon-256.png');
     background-size: cover;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 18%;
+    left: calc(50% - 50px);
 }
 
-.loading {
+.loading_spinner {
     position: fixed;
-    width: 100%;
-    height: 28px;
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    bottom: 15%;
-    color: #fff;
+    width: 36px;
+    height: 36px;
+    bottom: 18%;
+    left: calc(50% - 18px);
+    background-image: url('assets/loading.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    animation: spin 6s ease-in-out infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(360deg);
+    }
+    25% {
+        transform: rotate(2160deg);
+    }
+    50% {
+        transform: rotate(4320deg);
+    }
+    75% {
+        transform: rotate(2160deg);
+    }
+    100% {
+        transform: rotate(4320deg);
+    }
 }
