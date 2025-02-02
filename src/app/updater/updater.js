@@ -3,8 +3,9 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
+const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
-let currentPkgVersion = "1.4.2";
+let currentPkgVersion = "1.5.0";
 
 const repoOwner = "Web-Next-Music";
 const repoName = "Next-Music-Client";
@@ -20,6 +21,7 @@ function createWindow() {
         resizable: false,
         alwaysOnTop: true,
         transparent: true,
+        icon: appIcon,
         webPreferences: {
             nodeIntegration: true,
         },

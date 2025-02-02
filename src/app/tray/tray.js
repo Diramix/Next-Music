@@ -68,7 +68,7 @@ function createSettingsWindow() {
 
     settingsWindow = new BrowserWindow({
         width: 400,
-        height: 349,
+        height: 371,
         resizable: false,
         autoHideMenuBar: true,
         icon: appIcon,

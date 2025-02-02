@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
 eval(require('fs').readFileSync(require('path').join(__dirname, 'app', 'tray', 'tray.js'), 'utf8'));
 
@@ -13,11 +14,10 @@ let config = {
     newDesign: true, 
     addonsEnabled: false,
     autoUpdate: true,
+    preloadWindow: true,
     autoLaunch: false, 
     startMinimized: false 
 };
-
-const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -39,6 +39,12 @@ if (!gotTheLock) {
         createWindow();
         createTray();
         cfgUpdater();
+    });
+
+    ipcMain.on('restart-app', () => {
+        const execPath = process.argv[0];
+        app.relaunch();
+        app.exit();
     });
 
     app.on('window-all-closed', () => {
@@ -113,8 +119,27 @@ function updateAutoLaunch(enable) {
     app.setLoginItemSettings({ openAtLogin: enable });
 }
 
+function createPreloadWindow() {
+    preloadWindow = new BrowserWindow({
+        width: 250,
+        height: 280,
+        frame: false,
+        transparent: true,
+        resizable: false,
+        show: true,
+        icon: appIcon,
+    });
+
+    preloadWindow.loadURL('file://' + __dirname + '/app/preload/preload.html');
+}
+
 function createWindow() {
     const showWindow = !config.startMinimized;
+
+    if (config.preloadWindow && !config.startMinimized) {
+        createPreloadWindow();
+    }
+
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
@@ -123,15 +148,35 @@ function createWindow() {
         autoHideMenuBar: true,
         icon: appIcon,
         webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
         },
-        show: showWindow,
+        show: false,
     });
+
     loadMainUrl();
-    mainWindow.on('close', (event) => { event.preventDefault(); mainWindow.hide(); });
-    mainWindow.webContents.on('did-finish-load', () => { applyAddons(); });
-    if (config.startMinimized) mainWindow.hide();
+
+    mainWindow.webContents.on('did-finish-load', () => {
+        if (config.preloadWindow && !config.startMinimized) {
+            preloadWindow.close();
+        }
+        applyAddons();
+        if (!config.startMinimized) {
+            mainWindow.show();
+        }
+    });
+
+    mainWindow.on('close', (event) => {
+        event.preventDefault();
+        mainWindow.hide();
+    });
+
+    if (config.startMinimized) {
+        mainWindow.hide();
+    } else if (!config.preloadWindow) {
+        mainWindow.show();
+    }
 }
 
 function loadMainUrl() {

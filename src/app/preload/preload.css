@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    margin: 0;
+    background-color: #000;
+    border-radius: 10px;
+    font-family: 'Noto Sans', sans-serif;
+}
+
+.next_icon {
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    background-image: url('../icons/icon-256.png');
+    background-size: cover;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.loading {
+    position: fixed;
+    width: 100%;
+    height: 28px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    bottom: 15%;
+    color: #fff;
+}
