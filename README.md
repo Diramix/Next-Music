@@ -54,6 +54,6 @@ npm run make
 ## DANGER ZONE
 
 >[!WARNING]
->Если вы знаете JavaScript, то НИКОГДА не смотрите файл `main.js`!!!
+>Если вы знаете JavaScript, то НИКОГДА не смотрите файл `index.js`!!!
 >
 >Вы сблюёте себе на клаву...
