@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const appIcon = path.join(__dirname, 'app/icons/icon.ico');
@@ -84,17 +84,11 @@ function ensureDirectories() {
 function showNotification() {
     const notification = new Notification({
         title: 'Next Music',
-        body: 'Directory Next Music has been created. Click to open.',
+        body: 'Directory Next Music has been created.',
         silent: false,
         icon: appIcon,
     });
-
-    notification.on('click', () => {
-        shell.openPath(nextMusicDirectory).catch(err => {
-            console.error('Error opening folder:', err);
-        });
-    });
-
+    
     notification.show();
 }
 
@@ -159,7 +153,11 @@ function createWindow() {
 
     mainWindow.webContents.on('did-finish-load', () => {
         if (config.preloadWindow && !config.startMinimized) {
-            preloadWindow.close();
+            try {
+                preloadWindow.close();
+            } catch (err) {
+                console.log('Preload window is missing')
+              }
         }
         applyAddons();
         if (!config.startMinimized) {
