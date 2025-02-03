@@ -21,8 +21,5 @@ document.getElementById('saveButton').onclick = () => {
     };
     ipcRenderer.send('update-config', newConfig);
 
-    // Отправляем команду на перезапуск приложения
     ipcRenderer.send('restart-app');
-
-    window.close();
 };

@@ -1,7 +1,7 @@
 const { shell } = require('electron');
 const fs = require('fs');
 
-let currentPkgVersion = "v1.5.1";
+let currentPkgVersion = "v1.5.2";
 document.querySelector(".version").textContent = currentPkgVersion;
 const title = `Next Music ${currentPkgVersion} By Diramix`
 document.querySelector(".nm_title").textContent = title;

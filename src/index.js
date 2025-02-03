@@ -60,6 +60,14 @@ if (!gotTheLock) {
     });
 }
 
+function isOnline() {
+    return new Promise((resolve) => {
+        require('dns').resolve('google.com', (err) => {
+            resolve(!err);
+        });
+    });
+}
+
 function cfgUpdater() {
     if (config.autoUpdate) {
         eval(require('fs').readFileSync(require('path').join(__dirname, 'app', 'updater', 'updater.js'), 'utf8'))
@@ -150,18 +158,23 @@ function createWindow() {
     });
 
     loadMainUrl();
-
-    mainWindow.webContents.on('did-finish-load', () => {
-        if (config.preloadWindow && !config.startMinimized) {
-            try {
-                preloadWindow.close();
-            } catch (err) {
-                console.log('Preload window is missing')
-              }
-        }
-        applyAddons();
-        if (!config.startMinimized) {
-            mainWindow.show();
+    
+    mainWindow.webContents.on('did-finish-load', async () => {
+        if (await isOnline()) {
+            if (config.preloadWindow && !config.startMinimized) {
+                try {
+                    preloadWindow.close();
+                } catch (err) {
+                    console.log('Preload window is missing');
+                }
+            }
+            applyAddons();
+            if (!config.startMinimized) {
+                mainWindow.show();
+            }
+        } else {
+            console.log('No internet connection.');
+            app.exit();
         }
     });
 
