@@ -1,25 +1,49 @@
 const { ipcRenderer } = require('electron');
 
-// Обработчик для загрузки конфигурации
+// Параметры:
+// needRestart - Полный перезапуск программы.
+// needUpdate - Обновление страницы и ссылки (loadMainUrl).
+
+const settings = [
+    { id: 'newDesign', needUpdate: true },
+    { id: 'addonsEnabled', needUpdate: true },
+    { id: 'autoUpdate', needRestart: true },
+    { id: 'preloadWindow' },
+    { id: 'autoLaunch' },
+    { id: 'startMinimized' }
+];
+
+let currentConfig = {};
+
 ipcRenderer.on('load-config', (event, config) => {
-    document.getElementById('newDesign').checked = config.newDesign;
-    document.getElementById('enableExtensions').checked = config.addonsEnabled;
-    document.getElementById('autoUpdate').checked = config.autoUpdate;
-    document.getElementById('preloadWindow').checked = config.preloadWindow;
-    document.getElementById('autoLaunch').checked = config.autoLaunch;
-    document.getElementById('startMinimized').checked = config.startMinimized;
+    currentConfig = config;
+    settings.forEach(setting => {
+        document.getElementById(setting.id).checked = config[setting.id];
+    });
 });
 
 document.getElementById('saveButton').onclick = () => {
-    const newConfig = {
-        newDesign: document.getElementById('newDesign').checked,
-        addonsEnabled: document.getElementById('enableExtensions').checked,
-        autoUpdate: document.getElementById('autoUpdate').checked,
-        preloadWindow: document.getElementById('preloadWindow').checked,
-        autoLaunch: document.getElementById('autoLaunch').checked,
-        startMinimized: document.getElementById('startMinimized').checked,
-    };
-    ipcRenderer.send('update-config', newConfig);
+    const newConfig = {};
+    let needRestart = false;
+    let needUpdate = false;
 
-    ipcRenderer.send('restart-app');
+    settings.forEach(setting => {
+        const value = document.getElementById(setting.id).checked;
+        newConfig[setting.id] = value;
+
+        if (setting.needRestart && value !== currentConfig[setting.id]) {
+            needRestart = true;
+        } else if (setting.needUpdate && value !== currentConfig[setting.id]) {
+            needUpdate = true;
+        }
+    });
+
+    ipcRenderer.send('update-config', newConfig);
+    window.close();
+
+    if (needRestart) {
+        ipcRenderer.send('restart-app');
+    } else if (needUpdate) {
+        ipcRenderer.send('small-restart');
+    }
 };

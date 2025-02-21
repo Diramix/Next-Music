@@ -5,11 +5,12 @@ const path = require('path');
 const { app, BrowserWindow } = require('electron');
 const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
-let currentPkgVersion = "1.5.5";
+let currentPkgVersion = "1.5.6";
 
 const repoOwner = "Web-Next-Music";
 const repoName = "Next-Music-Client";
 const currentReleaseVersion = `Next-Music-${currentPkgVersion}`;
+const installerDir = path.join(os.homedir(), 'AppData', 'Local', 'next-music-updater');
 
 let mainWindow;
 
@@ -79,7 +80,11 @@ async function updateCheck() {
 }
 
 async function downloadInstaller(url, version) {
-    const tempDir = path.join(os.tmpdir(), `${version}-Setup.exe`);
+    if (!fs.existsSync(installerDir)) {
+        fs.mkdirSync(installerDir, { recursive: true });
+    }
+
+    const installerPath = path.join(installerDir, 'installer.exe');
 
     try {
         const response = await fetch(url);
@@ -88,7 +93,7 @@ async function downloadInstaller(url, version) {
         const totalSize = response.headers.get('content-length');
         if (!totalSize) throw new Error('Content-Length header is missing.');
 
-        const fileStream = fs.createWriteStream(tempDir);
+        const fileStream = fs.createWriteStream(installerPath);
         const readableStream = response.body;
 
         let downloadedSize = 0;
@@ -130,7 +135,7 @@ async function downloadInstaller(url, version) {
         console.log('\nInstaller downloaded. Launching...');
         updateWindowMessage(`Version ${version} downloaded. Installing now...`);
         process.exit();
-        exec(tempDir, (err, stdout, stderr) => {
+        exec(installerPath, (err, stdout, stderr) => {
             if (err) {
                 console.error(`Error launching installer: ${stderr}`);
                 return;

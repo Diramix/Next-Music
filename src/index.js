@@ -41,10 +41,22 @@ if (!gotTheLock) {
         cfgUpdater();
     });
 
+    ipcMain.on('update-config', (event, newConfig) => {
+        config = { ...config, ...newConfig };
+        saveConfig();
+    });
+
     ipcMain.on('restart-app', () => {
         const execPath = process.argv[0];
         app.relaunch();
         app.exit();
+    });
+
+    ipcMain.on('small-restart', () => {
+        if (mainWindow) {
+            mainWindow.reload();
+            loadMainUrl();
+        }
     });
 
     app.on('window-all-closed', () => {
@@ -252,12 +264,3 @@ function loadFilesFromDirectory(directory, extension, callback) {
         });
     });
 }
-
-ipcMain.on('update-config', (event, newConfig) => {
-    config = { ...config, ...newConfig };
-    saveConfig();
-    if (newConfig.autoLaunch !== undefined) {
-        updateAutoLaunch(newConfig.autoLaunch);
-    }
-    if (newConfig.newDesign !== undefined) loadMainUrl();
-});
