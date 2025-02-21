@@ -92,3 +92,4 @@ typings/
 out/
 
 package-lock.json
+dist/

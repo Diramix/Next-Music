@@ -2,8 +2,8 @@
   "name": "next-music",
   "version": "1.5.3",
   "main": "src/index.js",
-  "author":"Diramix",
-  "description":"Web client for Yandex Music",
+  "author": "Diramix",
+  "description": "Web client for Yandex Music",
   "scripts": {
     "start": "electron .",
     "make": "electron-builder -w"
@@ -27,7 +27,7 @@
     "@electron-forge/maker-zip": "^7.6.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.6.1",
     "@electron-forge/plugin-fuses": "^7.6.1",
-    "electron": "^23.0.0",
+    "electron": "^34.2.0",
     "electron-builder": "^24.0.0"
   },
   "dependencies": {
