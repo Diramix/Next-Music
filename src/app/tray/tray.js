@@ -68,9 +68,10 @@ function createSettingsWindow() {
 
     settingsWindow = new BrowserWindow({
         width: 400,
-        height: 371,
+        height: 381,
         resizable: false,
         autoHideMenuBar: true,
+        alwaysOnTop: true,
         icon: appIcon,
         webPreferences: {
             nodeIntegration: true,
@@ -108,6 +109,7 @@ function createInfoWindow() {
         height: 400,
         resizable: false,
         autoHideMenuBar: true,
+        alwaysOnTop: true,
         icon: appIcon,
         webPreferences: {
             nodeIntegration: true,
