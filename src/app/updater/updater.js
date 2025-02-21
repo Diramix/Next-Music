@@ -5,7 +5,7 @@ const path = require('path');
 const { app, BrowserWindow } = require('electron');
 const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
-let currentPkgVersion = "1.5.2";
+let currentPkgVersion = "1.5.3";
 
 const repoOwner = "Web-Next-Music";
 const repoName = "Next-Music-Client";

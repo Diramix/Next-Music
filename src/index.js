@@ -125,10 +125,14 @@ function createPreloadWindow() {
     preloadWindow = new BrowserWindow({
         width: 240,
         height: 280,
-        frame: false,
-        transparent: true,
-        resizable: false,
+        backgroundColor: '#000',
         show: true,
+        resizable: false,
+        fullscreenable: false,
+        movable: true,
+        frame: false,
+        transparent: false,
+        roundedCorners: true,
         icon: appIcon,
     });
 

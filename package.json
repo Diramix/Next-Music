@@ -1,6 +1,6 @@
 {
   "name": "next-music",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "main": "src/index.js",
   "author":"Diramix",
   "description":"Web client for Yandex Music",
