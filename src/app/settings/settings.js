@@ -90,15 +90,13 @@ labels.forEach(label => {
 setDefaultText();
 
 // Смена цвета кнопок
-document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-        document.querySelectorAll('.textButton').forEach(label => {
-            const checkbox = label.querySelector('input');
+setInterval(() => {
+    document.querySelectorAll('.textButton').forEach(label => {
+        const checkbox = label.querySelector('input');
+        label.classList.toggle('active', checkbox.checked);
+        label.addEventListener('click', () => {
+            checkbox.checked = !checkbox.checked;
             label.classList.toggle('active', checkbox.checked);
-            label.addEventListener('click', () => {
-                checkbox.checked = !checkbox.checked;
-                label.classList.toggle('active', checkbox.checked);
-            });
         });
-    }, 50);
-});
+    });
+}, 100)
