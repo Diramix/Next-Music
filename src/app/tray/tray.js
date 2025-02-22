@@ -72,6 +72,7 @@ function createSettingsWindow() {
         resizable: true,
         autoHideMenuBar: true,
         alwaysOnTop: true,
+        backgroundColor: '#16181E',
         icon: appIcon,
         webPreferences: {
             nodeIntegration: true,
@@ -110,6 +111,7 @@ function createInfoWindow() {
         resizable: false,
         autoHideMenuBar: true,
         alwaysOnTop: true,
+        backgroundColor: '#030117',
         icon: appIcon,
         webPreferences: {
             nodeIntegration: true,

@@ -174,6 +174,7 @@ function createWindow() {
         minHeight: 650,
         autoHideMenuBar: true,
         alwaysOnTop: config.alwaysOnTop,
+        backgroundColor: '#0D0D0D',
         icon: appIcon,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
