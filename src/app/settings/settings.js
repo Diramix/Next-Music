@@ -53,23 +53,36 @@ document.getElementById('saveButton').onclick = () => {
 };
 
 // tooltip-target
-// const labels = document.querySelectorAll('.textButton');
+const labels = document.querySelectorAll('.textButton');
+const tooltipTarget = document.querySelector('.tooltip-target');
+let hoverCount = 0;
 
-// labels.forEach(label => {
-//     label.addEventListener('mouseenter', function() {
-//         const tooltipText = label.querySelector('input').getAttribute('data-tooltip');
-//         const tooltipTarget = document.querySelector('.tooltip-target');
-//         tooltipTarget.textContent = tooltipText;
-//         tooltipTarget.style.visibility = 'visible';
-//         tooltipTarget.style.opacity = 1;
-//     });
+function setDefaultText() {
+    if (hoverCount === 0) {
+        tooltipTarget.textContent = 'Hover over setting.';
+        tooltipTarget.style.visibility = 'visible';
+        tooltipTarget.style.opacity = 1;
+    }
+}
 
-//     label.addEventListener('mouseleave', function() {
-//         const tooltipTarget = document.querySelector('.tooltip-target');
-//         tooltipTarget.style.visibility = 'hidden';
-//         tooltipTarget.style.opacity = 0;
-//     });
-// });
+labels.forEach(label => {
+    label.addEventListener('mouseenter', function() {
+        hoverCount++;
+        const tooltipText = label.querySelector('input').getAttribute('data-tooltip');
+        tooltipTarget.textContent = tooltipText;
+        tooltipTarget.style.visibility = 'visible';
+        tooltipTarget.style.opacity = 1;
+    });
+
+    label.addEventListener('mouseleave', function() {
+        hoverCount--;
+        setTimeout(() => {
+            if (hoverCount === 0) setDefaultText();
+        }, 50);
+    });
+});
+
+setDefaultText();
 
 // Смена цвета кнопок
 document.addEventListener("DOMContentLoaded", () => {

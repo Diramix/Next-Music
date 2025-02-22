@@ -6,22 +6,12 @@ body {
     user-select: none;
 }
 
-h2 {
-    margin-bottom: 20px;
-}
-
-.in_settings_title {
-    color: #9EA7C1;
-    padding: 5px 0px 0px 0px;
-    text-align: center;
-    font-weight: 700;
-}
-
-.settingsTitle {
+/* .settingsTitle {
     color: #fff;
     text-align: center;
-}
+} */
 
+/*Контейнер настроек*/
 .settings_container {
     display: flex;
     height: 300px;
@@ -31,8 +21,7 @@ h2 {
 }
 
 .program_settings_container,
-.autolaunch_settings_container,
-.tooltip-container {
+.autolaunch_settings_container {
     background-color: #1E2027;
     border-radius: 5px;
     padding: 5px;
@@ -40,12 +29,15 @@ h2 {
     width: 250px;
 }
 
-.tooltip-target {
-    padding: 10px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+/*Тайтл секций*/
+.in_settings_title {
+    color: #9EA7C1;
+    padding: 5px 0px 0px 0px;
+    text-align: center;
+    font-weight: 700;
 }
 
+/*Кнопки настроек*/
 .textButton {
     display: inline-flex;
     justify-content: center;
@@ -79,28 +71,26 @@ h2 {
 
 .textButton:hover {
     transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/*tooltip*/
+.tooltip-container {
+    display: flex;
+    height: 40px;
+    background-color: #1E2027;
+    border-radius: 5px;
+    margin-top: 8px;
 }
 
 .tooltip-target {
+    padding: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     color: #fff;
 }
 
-.tooltip {
-    visibility: visible;
-    opacity: 0;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 5px;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: opacity 0.3s;
-    z-index: 1;
-}
-
+/*Save Button*/
 .saveButton {
     background-color: #292C36;
     border-radius: 5px;
@@ -110,7 +100,7 @@ h2 {
     color: #fff;
     font-size: 15px;
     font-weight: 500;
-    margin-top: 9px;
+    margin-top: 8px;
 }
 
 .saveButton:hover {

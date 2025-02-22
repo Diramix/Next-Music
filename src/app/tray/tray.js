@@ -68,8 +68,8 @@ function createSettingsWindow() {
 
     settingsWindow = new BrowserWindow({
         width: 556,
-        height: 405,
-        resizable: true,
+        height: 452,
+        resizable: false,
         autoHideMenuBar: true,
         alwaysOnTop: true,
         backgroundColor: '#16181E',
