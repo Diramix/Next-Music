@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
 body {
-    font-family: 'Noto Sans', sans-serif;
-    background-color: #000;
+    font-family: 'Nunito', sans-serif;
+    background-color: #16181E;
     user-select: none;
 }
 
@@ -10,15 +10,11 @@ h2 {
     margin-bottom: 20px;
 }
 
-button {
-    margin-top: 10px;
-}
-
 .in_settings_title {
     color: #9EA7C1;
-    padding: 0px 0px 2px 0px;
+    padding: 5px 0px 0px 0px;
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .settingsTitle {
@@ -26,19 +22,83 @@ button {
     text-align: center;
 }
 
-.textButton {
-    color: #fff;
+.settings_container {
+    display: flex;
+    height: 300px;
+    gap: 5px;
+    align-items: flex-start;
+    justify-content: flex-end;
 }
 
 .program_settings_container,
-.autolaunch_settings_container {
-    background-color: #16181E;
+.autolaunch_settings_container,
+.tooltip-container {
+    background-color: #1E2027;
     border-radius: 5px;
     padding: 5px;
+    height: calc(100% - 10px);
+    width: 250px;
 }
 
-.autolaunch_settings_container {
+.tooltip-target {
+    padding: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.textButton {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    width: -webkit-fill-available;
+    background-color: #292C36;
+    padding: 10px 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 700;
+    transition: all 0.1s ease;
+    cursor: pointer;
+    text-align: center;
     margin-top: 10px;
+}
+
+.textButton input {
+    display: none;
+}
+
+.textButton.active {
+    background-color: #3293D4;
+    color: #fff;
+}
+
+.textButton:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.textButton:hover {
+    transform: scale(1.05);
+}
+
+.tooltip-target {
+    color: #fff;
+}
+
+.tooltip {
+    visibility: visible;
+    opacity: 0;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.3s;
+    z-index: 1;
 }
 
 .saveButton {
@@ -50,6 +110,7 @@ button {
     color: #fff;
     font-size: 15px;
     font-weight: 500;
+    margin-top: 9px;
 }
 
 .saveButton:hover {

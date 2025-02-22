@@ -13,6 +13,7 @@ let mainWindow = null;
 let config = { 
     newDesign: true, 
     addonsEnabled: false,
+    alwaysOnTop: false,
     autoUpdate: true,
     preloadWindow: true,
     autoLaunch: false, 
@@ -41,9 +42,17 @@ if (!gotTheLock) {
         cfgUpdater();
     });
 
+    // Settings renderer
+
     ipcMain.on('update-config', (event, newConfig) => {
         config = { ...config, ...newConfig };
         saveConfig();
+    });
+
+    ipcMain.on('set-always-on-top', () => {
+        if (mainWindow) {
+            mainWindow.setAlwaysOnTop(config.alwaysOnTop);
+        }
     });
 
     ipcMain.on('restart-app', () => {
@@ -164,6 +173,7 @@ function createWindow() {
         minWidth: 800,
         minHeight: 650,
         autoHideMenuBar: true,
+        alwaysOnTop: config.alwaysOnTop,
         icon: appIcon,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),

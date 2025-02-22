@@ -7,6 +7,7 @@ const { ipcRenderer } = require('electron');
 const settings = [
     { id: 'newDesign', needUpdate: true },
     { id: 'addonsEnabled', needUpdate: true },
+    { id: 'alwaysOnTop' },
     { id: 'autoUpdate', needRestart: true },
     { id: 'preloadWindow' },
     { id: 'autoLaunch' },
@@ -36,9 +37,12 @@ document.getElementById('saveButton').onclick = () => {
         } else if (setting.needUpdate && value !== currentConfig[setting.id]) {
             needUpdate = true;
         }
+
+        toggleAlwaysOnTop = setting.alwaysOnTop
     });
 
     ipcRenderer.send('update-config', newConfig);
+    ipcRenderer.send('set-always-on-top', toggleAlwaysOnTop);
     window.close();
 
     if (needRestart) {
@@ -47,3 +51,36 @@ document.getElementById('saveButton').onclick = () => {
         ipcRenderer.send('small-restart');
     }
 };
+
+// tooltip-target
+// const labels = document.querySelectorAll('.textButton');
+
+// labels.forEach(label => {
+//     label.addEventListener('mouseenter', function() {
+//         const tooltipText = label.querySelector('input').getAttribute('data-tooltip');
+//         const tooltipTarget = document.querySelector('.tooltip-target');
+//         tooltipTarget.textContent = tooltipText;
+//         tooltipTarget.style.visibility = 'visible';
+//         tooltipTarget.style.opacity = 1;
+//     });
+
+//     label.addEventListener('mouseleave', function() {
+//         const tooltipTarget = document.querySelector('.tooltip-target');
+//         tooltipTarget.style.visibility = 'hidden';
+//         tooltipTarget.style.opacity = 0;
+//     });
+// });
+
+// Смена цвета кнопок
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        document.querySelectorAll('.textButton').forEach(label => {
+            const checkbox = label.querySelector('input');
+            label.classList.toggle('active', checkbox.checked);
+            label.addEventListener('click', () => {
+                checkbox.checked = !checkbox.checked;
+                label.classList.toggle('active', checkbox.checked);
+            });
+        });
+    }, 50);
+});

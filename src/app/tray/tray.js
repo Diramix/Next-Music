@@ -1,4 +1,4 @@
-const { Tray, Menu, shell, BrowserWindow } = require('electron');
+const { Tray, Menu, shell, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 let tray = null;
@@ -67,9 +67,9 @@ function createSettingsWindow() {
     }
 
     settingsWindow = new BrowserWindow({
-        width: 400,
-        height: 381,
-        resizable: false,
+        width: 556,
+        height: 405,
+        resizable: true,
         autoHideMenuBar: true,
         alwaysOnTop: true,
         icon: appIcon,
