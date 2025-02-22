@@ -15,7 +15,7 @@ const settings = [
     { id: 'autoUpdate', needRestart: true },
     // Launch Settings
     { id: 'preloadWindow' },
-    { id: 'autoLaunch' },
+    { id: 'autoLaunch', needRestart: true },
     { id: 'startMinimized' }
 ];
 
