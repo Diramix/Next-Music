@@ -5,7 +5,7 @@ const path = require('path');
 const { app, BrowserWindow } = require('electron');
 const appIcon = path.join(__dirname, 'app/icons/icon.ico');
 
-let currentPkgVersion = "1.6.1";
+let currentPkgVersion = "1.6.2";
 
 const repoOwner = "Web-Next-Music";
 const repoName = "Next-Music-Client";
@@ -134,7 +134,6 @@ async function downloadInstaller(url, version) {
 
         console.log('\nInstaller downloaded. Launching...');
         updateWindowMessage(`Version ${version} downloaded. Installing now...`);
-        process.exit();
         exec(installerPath, (err, stdout, stderr) => {
             if (err) {
                 console.error(`Error launching installer: ${stderr}`);
@@ -142,6 +141,7 @@ async function downloadInstaller(url, version) {
             }
             console.log(`Installer launched: ${stdout}`);
         });
+        process.exit();
     } catch (error) {
         console.error(`Error downloading installer: ${error.message}`);
     }
