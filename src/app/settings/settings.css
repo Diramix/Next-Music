@@ -21,7 +21,8 @@ body {
 }
 
 .program_settings_container,
-.autolaunch_settings_container {
+.autolaunch_settings_container,
+.window_settings_container {
     background-color: #1E2027;
     border-radius: 5px;
     padding: 5px;

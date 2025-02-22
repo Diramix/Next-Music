@@ -10,11 +10,16 @@ const addonsDirectory = path.join(nextMusicDirectory, 'Addons');
 const configFilePath = path.join(nextMusicDirectory, 'config.json');
 
 let mainWindow = null;
-let config = { 
+let config = {
+    // Window Settings
+    alwaysOnTop: false,
+    freeWindowResize: false,
+    opacity03: false,
+    // Program Settings
     newDesign: true, 
     addonsEnabled: false,
-    alwaysOnTop: false,
     autoUpdate: true,
+    // Launch Settings
     preloadWindow: true,
     autoLaunch: false, 
     startMinimized: false 
@@ -43,7 +48,6 @@ if (!gotTheLock) {
     });
 
     // Settings renderer
-
     ipcMain.on('update-config', (event, newConfig) => {
         config = { ...config, ...newConfig };
         saveConfig();
@@ -54,6 +58,20 @@ if (!gotTheLock) {
             mainWindow.setAlwaysOnTop(config.alwaysOnTop);
         }
     });
+
+    ipcMain.on('free-window-resize', () => {
+        if (mainWindow) {
+            const minWidth = config.freeWindowResize ? 0 : 800;
+            const minHeight = config.freeWindowResize ? 0 : 650;
+            mainWindow.setMinimumSize(minWidth, minHeight);
+        }
+    });
+
+    ipcMain.on('opacity-03', () => {
+        if (mainWindow) {
+            mainWindow.setOpacity(config.opacity03 ? 0.3 : 1);
+        }
+    });     
 
     ipcMain.on('restart-app', () => {
         const execPath = process.argv[0];
@@ -170,9 +188,10 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
-        minWidth: 800,
-        minHeight: 650,
         autoHideMenuBar: true,
+        minWidth: config.freeWindowResize ? 0 : 800,
+        minHeight: config.freeWindowResize ? 0 : 650,
+        opacity: config.opacity03 ? 0.3 : 1,
         alwaysOnTop: config.alwaysOnTop,
         backgroundColor: '#0D0D0D',
         icon: appIcon,

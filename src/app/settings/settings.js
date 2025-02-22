@@ -5,10 +5,15 @@ const { ipcRenderer } = require('electron');
 // needUpdate - Обновление страницы и ссылки (loadMainUrl).
 
 const settings = [
+    // Window Settings
+    { id: 'alwaysOnTop' },
+    { id: 'freeWindowResize' },
+    { id: 'opacity03' },
+    // Program Settings
     { id: 'newDesign', needUpdate: true },
     { id: 'addonsEnabled', needUpdate: true },
-    { id: 'alwaysOnTop' },
     { id: 'autoUpdate', needRestart: true },
+    // Launch Settings
     { id: 'preloadWindow' },
     { id: 'autoLaunch' },
     { id: 'startMinimized' }
@@ -37,12 +42,12 @@ document.getElementById('saveButton').onclick = () => {
         } else if (setting.needUpdate && value !== currentConfig[setting.id]) {
             needUpdate = true;
         }
-
-        toggleAlwaysOnTop = setting.alwaysOnTop
     });
 
     ipcRenderer.send('update-config', newConfig);
-    ipcRenderer.send('set-always-on-top', toggleAlwaysOnTop);
+    ipcRenderer.send('set-always-on-top');
+    ipcRenderer.send('free-window-resize');
+    ipcRenderer.send('opacity-03');
     window.close();
 
     if (needRestart) {
